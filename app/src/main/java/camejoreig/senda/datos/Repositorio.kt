@@ -103,9 +103,9 @@ class Repositorio(private val ctx: Context) {
             rutas = (0 until lista.length()).map { rutaDesdeJson(lista.getJSONObject(it)) }
             viaje = json.optJSONObject("viaje")?.let { Viaje(it.getString("rutaId"), it.getInt("paso")) }
         }
-        if (leido.isFailure) { // primera vez o archivo dañado: empezamos con la ruta de ejemplo
+        if (leido.isFailure) { // primera vez o archivo dañado: empezamos sin rutas
             ajustes = null
-            rutas = listOf(RUTA_EJEMPLO)
+            rutas = emptyList()
             viaje = null
         }
     }

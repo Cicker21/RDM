@@ -56,23 +56,3 @@ data class Ajustes(
     val leerEnVozAlta: Boolean = false,  // lee cada paso automáticamente al aparecer
     val contacto: Contacto = Contacto(),
 )
-
-/**
- * Ruta de ejemplo en Madrid: Lavapiés (L3) -> Sol (transbordo) -> Tribunal (L1).
- * OJO: escrita de memoria. Hay que comprobarla en el plano oficial de Metro antes de la demo.
- */
-val RUTA_EJEMPLO = Ruta(
-    id = "ejemplo",
-    nombre = "De casa al trabajo",
-    pasos = listOf(
-        Paso("Sal de casa. Camina hasta el Metro de Lavapiés.", Icono.CAMINAR),
-        Paso("Pasa el torno con tu tarjeta de transporte.", Icono.TORNO),
-        Paso("Busca la línea 3, de color amarillo. Ve al andén que pone «Moncloa».", Icono.ANDEN),
-        Paso("Sube al tren. Bájate en la primera parada: Sol.", Icono.TREN),
-        Paso("En Sol, sigue los carteles de la línea 1, de color azul claro.", Icono.TRANSBORDO),
-        Paso("Ve al andén que pone «Pinar de Chamartín».", Icono.ANDEN),
-        Paso("Sube al tren. Bájate en la segunda parada: Tribunal.", Icono.TREN),
-        Paso("Sube las escaleras. Sal por la salida que te enseñaron.", Icono.SALIDA),
-        Paso("Camina hasta tu trabajo. ¡Ya casi estás!", Icono.TRABAJO),
-    ),
-)
