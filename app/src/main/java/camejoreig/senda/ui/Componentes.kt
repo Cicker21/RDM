@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -109,11 +111,13 @@ fun BotonOpcion(
     elegido: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contenido: @Composable () -> Unit,
+    relleno: PaddingValues = ButtonDefaults.ContentPadding, // margen interior del botón
+    contenido: @Composable RowScope.() -> Unit,
 ) {
     OutlinedButton(
         onClick = onClick,
         modifier = modifier.heightIn(min = 64.dp),
+        contentPadding = relleno,
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(
             if (elegido) 4.dp else 2.dp,
