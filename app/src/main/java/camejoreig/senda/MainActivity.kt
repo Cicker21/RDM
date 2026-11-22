@@ -4,44 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import camejoreig.senda.datos.Ajustes
+import camejoreig.senda.datos.Repositorio
+import camejoreig.senda.ui.SendaApp
 import camejoreig.senda.ui.theme.SendaTheme
 
+/**
+ * Única actividad de la app. Solo prepara los datos y la voz y dibuja SendaApp;
+ * toda la navegación entre pantallas está en ui/SendaApp.kt.
+ */
 class MainActivity : ComponentActivity() {
+    private lateinit var voz: Voz
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val repo = Repositorio(applicationContext)
+        voz = Voz(this)
         setContent {
-            SendaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            // El tema se adapta a los ajustes guardados (letra, contraste)
+            SendaTheme(ajustes = repo.ajustes ?: Ajustes()) {
+                SendaApp(repo, voz)
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SendaTheme {
-        Greeting("Android")
+    override fun onDestroy() {
+        voz.cerrar()
+        super.onDestroy()
     }
 }
