@@ -25,7 +25,7 @@ import camejoreig.senda.datos.Ruta
  *   ¿Hay ajustes guardados?
  *     No -> GuiaScreen (primera vez) -> guarda ajustes -> InicioScreen
  *     Sí -> InicioScreen
- *   InicioScreen -> Viaje (Orquestador) | CreadorScreen | AjustesScreen
+ *   InicioScreen -> Viaje (Orquestador) | CreadorScreen | AjustesScreen | AyudaScreen
  *
  * Para no añadir dependencias, la navegación es una simple variable de estado
  * ("pantalla"). Si la app crece mucho se puede pasar a Navigation Compose.
@@ -41,6 +41,7 @@ sealed interface Pantalla {
     data object Creador : Pantalla
     data class Editor(val ruta: Ruta, val esNueva: Boolean) : Pantalla
     data object CambiarAjustes : Pantalla
+    data object Ayuda : Pantalla
 }
 
 @Composable
@@ -89,6 +90,7 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                     continuar = { pantalla = Pantalla.Viaje },
                     abrirCreador = { pantalla = Pantalla.Creador },
                     abrirAjustes = { pantalla = Pantalla.CambiarAjustes },
+                    abrirAyuda = { pantalla = Pantalla.Ayuda },
                 )
                 Pantalla.Viaje -> ViajeScreen(
                     repo = repo, voz = voz,
@@ -112,6 +114,7 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                     repo = repo, original = p.ruta, esNueva = p.esNueva,
                     cerrar = { pantalla = Pantalla.Creador },
                 )
+                Pantalla.Ayuda -> AyudaScreen(repo = repo, voz = voz, volver = { pantalla = Pantalla.Inicio })
                 Pantalla.CambiarAjustes -> Unit // se dibuja arriba
             }
         }

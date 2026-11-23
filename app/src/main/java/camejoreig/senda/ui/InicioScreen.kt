@@ -28,7 +28,7 @@ import camejoreig.senda.datos.Repositorio
  * InicioScreen: menú principal (desplazable).
  * - Si hay un viaje a medias, lo primero es poder seguirlo.
  * - Después, las rutas guardadas: al tocar una, empieza el viaje.
- * - Abajo, crear/cambiar rutas y ajustes.
+ * - Abajo, crear/cambiar rutas, ajustes y ayuda.
  */
 @Composable
 fun InicioScreen(
@@ -37,6 +37,7 @@ fun InicioScreen(
     continuar: () -> Unit,
     abrirCreador: () -> Unit,
     abrirAjustes: () -> Unit,
+    abrirAyuda: () -> Unit,
 ) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
@@ -80,5 +81,6 @@ fun InicioScreen(
         Spacer(Modifier.height(16.dp))
         BotonBorde("Crear o cambiar rutas", abrirCreador, Modifier.fillMaxWidth())
         BotonBorde("Ajustes", abrirAjustes, Modifier.fillMaxWidth())
+        BotonBorde("¿Cómo funciona?", abrirAyuda, Modifier.fillMaxWidth())
     }
 }
