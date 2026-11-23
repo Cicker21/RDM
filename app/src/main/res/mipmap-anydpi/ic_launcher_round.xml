@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icono para Android 7 (API 24-25), que no tiene iconos adaptativos.
+     Es el mismo dibujo que el adaptativo, recortado en un círculo.
+     Desde Android 8 se usa mipmap-anydpi-v26 en su lugar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <group>
+        <clip-path android:pathData="M0,36 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 z" />
+        <group android:translateX="-18" android:translateY="-18">
+            <path android:fillColor="#1F4FBF" android:pathData="M0,0h108v108h-108z" />
+            <group
+                android:scaleX="0.34"
+                android:scaleY="0.34"
+                android:translateX="20"
+                android:translateY="20.34">
+                <!-- Contorno negro (4 px a cada lado) -->
+                <path android:pathData="M138 50 C138 28 62 26 62 66 C62 104 138 92 138 132 C138 174 62 174 62 150" android:strokeColor="#111111" android:strokeWidth="38" android:strokeLineCap="round" />
+                <!-- Carretera blanca -->
+                <path android:pathData="M138 50 C138 28 62 26 62 66 C62 104 138 92 138 132 C138 174 62 174 62 150" android:strokeColor="#FFFFFF" android:strokeWidth="30" android:strokeLineCap="round" />
+                <!-- Línea discontinua azul (VectorDrawable no tiene trazo discontinuo: cada raya es un tramo) -->
+                <path android:pathData="M138,50 L137.98,49.35 L137.91,48.7 L137.8,48.07 L137.64,47.46 L137.45,46.85 L137.21,46.26 L136.93,45.68 L136.62,45.12 L136.26,44.56 L135.87,44.02 L135.44,43.5 L134.98,42.98 L134.48,42.48 L134.22,42.24 M126.34,37.67 L125.48,37.36 L124.59,37.06 L123.69,36.78 L122.77,36.51 L121.82,36.25 L120.86,36.02 L119.88,35.8 L118.88,35.59 L117.87,35.41 L117.87,35.41 M108.49,34.48 L107.37,34.45 L106.24,34.45 L105.12,34.46 L103.98,34.5 L102.85,34.55 L101.71,34.61 L100.57,34.7 L100,34.75 M90.68,36.26 L89.58,36.53 L88.48,36.83 L87.39,37.14 L86.31,37.47 L85.25,37.83 L84.19,38.2 L83.15,38.59 L82.38,38.9 M74.31,43.23 L73.45,43.84 L72.62,44.47 L71.81,45.13 L71.03,45.81 L70.27,46.51 L69.54,47.23 L68.84,47.97 L68.17,48.74 L67.84,49.13 M63.38,57.2 L63.07,58.21 L62.79,59.25 L62.55,60.31 L62.36,61.4 L62.2,62.51 L62.09,63.65 L62.02,64.81 L62,65.7 M63.64,74.89 L64.03,75.78 L64.45,76.65 L64.9,77.49 L65.39,78.31 L65.92,79.1 L66.47,79.88 L67.06,80.63 L67.68,81.37 L68.33,82.08 L68.33,82.08 M75.63,87.85 L76.54,88.4 L77.47,88.93 L78.42,89.45 L79.38,89.96 L80.37,90.46 L81.37,90.95 L82.38,91.43 L83.41,91.9 L83.41,91.9 M91.79,95.29 L92.91,95.71 L94.04,96.12 L95.17,96.53 L96.3,96.93 L97.44,97.34 L98.58,97.74 L99.72,98.15 L100,98.25 M108.76,101.45 L109.87,101.89 L110.97,102.32 L112.07,102.77 L113.15,103.22 L114.22,103.67 L115.28,104.14 L116.33,104.62 L116.85,104.86 M125.04,109.4 L125.91,110 L126.76,110.62 L127.59,111.25 L128.39,111.9 L129.16,112.57 L129.91,113.25 L130.64,113.95 L131.33,114.68 L131.67,115.04 M136.45,122.86 L136.78,123.83 L137.08,124.83 L137.34,125.85 L137.55,126.91 L137.73,127.99 L137.86,129.1 L137.95,130.23 L137.99,131.4 L137.99,131.4 M136.86,140.48 L136.53,141.55 L136.17,142.59 L135.77,143.61 L135.33,144.61 L134.86,145.58 L134.35,146.52 L133.81,147.45 L133.24,148.35 L133.24,148.35 M126.97,155.23 L126.12,155.91 L125.26,156.56 L124.37,157.19 L123.46,157.8 L122.53,158.38 L121.58,158.95 L120.62,159.49 L119.63,160.01 L119.63,160.01 M110.97,163.48 L109.87,163.8 L108.76,164.1 L107.65,164.38 L106.53,164.64 L105.4,164.88 L104.27,165.1 L103.13,165.3 L102.56,165.4 M93.19,166.21 L92.07,166.22 L90.96,166.21 L89.85,166.18 L88.75,166.13 L87.66,166.06 L86.58,165.98 L85.51,165.87 L84.72,165.78 M75.63,163.84 L74.74,163.54 L73.88,163.22 L73.03,162.88 L72.21,162.53 L71.42,162.16 L70.65,161.78 L69.9,161.38 L69.19,160.96 L68.5,160.52 L67.84,160.07 L67.68,159.96 M62.36,152.76 L62.2,152.09 L62.09,151.41 L62.02,150.71 L62,150 L62,150" android:strokeColor="#1F4FBF" android:strokeWidth="5" android:strokeLineCap="round" />
+                <!-- Punto de destino: negro, aro blanco y verde -->
+                <path android:pathData="M38,150 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0 z" android:fillColor="#111111" />
+                <path android:pathData="M42.5,150 a19.5,19.5 0 1,0 39,0 a19.5,19.5 0 1,0 -39,0 z" android:fillColor="#FFFFFF" />
+                <path android:pathData="M47.5,150 a14.5,14.5 0 1,0 29,0 a14.5,14.5 0 1,0 -29,0 z" android:fillColor="#2FA96A" />
+            </group>
+        </group>
+    </group>
+</vector>
