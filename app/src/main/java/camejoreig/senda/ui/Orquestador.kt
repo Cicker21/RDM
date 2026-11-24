@@ -231,7 +231,7 @@ fun PersonalScreen(repo: Repositorio, voz: Voz, volver: () -> Unit) {
 // Llegada
 // ---------------------------------------------------------------
 @Composable
-fun LlegadaScreen(inicio: () -> Unit, celebrar: Boolean = true) {
+fun LlegadaScreen(inicio: () -> Unit, celebrar: Boolean = true, duracionMs: Int = 6000) {
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Spacer(Modifier.weight(1f))
@@ -241,6 +241,6 @@ fun LlegadaScreen(inicio: () -> Unit, celebrar: Boolean = true) {
         Spacer(Modifier.weight(1f))
         BotonGrande("Volver al inicio", inicio)
     }
-    Celebracion(activa = celebrar) // confeti encima (ui/Celebracion.kt); no tapa el botón
+    Celebracion(activa = celebrar, duracionMs = duracionMs) // confeti encima (ui/Celebracion.kt); no tapa el botón
     }
 }

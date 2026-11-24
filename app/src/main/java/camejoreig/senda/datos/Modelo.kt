@@ -63,6 +63,12 @@ enum class ModoColor(val etiqueta: String) {
     OSCURO("Oscuro"),
 }
 
+/** Cuánto dura el confeti al llegar. Los segundos no se enseñan en pantalla, solo «Corta» o «Larga». */
+enum class DuracionCelebracion(val milisegundos: Int, val etiqueta: String) {
+    CORTA(3000, "Corta"),
+    LARGA(6000, "Larga"),
+}
+
 /**
  * Cómo se abre el botón «Apoyo» del inicio (lo elige la persona de apoyo en Ajustes).
  * Mantenerlo pulsado unos segundos evita que se abra sin querer. 0 segundos = un toque normal.
@@ -88,4 +94,5 @@ data class Ajustes(
     val tema: TemaColor = TemaColor.MELOCOTON,
     val modo: ModoColor = ModoColor.SEGUN_MOVIL, // solo se cambia en Ajustes
     val celebrar: Boolean = true, // confeti al llegar al destino
+    val duracionCelebracion: DuracionCelebracion = DuracionCelebracion.LARGA,
 )

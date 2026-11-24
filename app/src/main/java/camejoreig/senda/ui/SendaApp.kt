@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import camejoreig.senda.Voz
 import camejoreig.senda.datos.Ajustes
+import camejoreig.senda.datos.DuracionCelebracion
 import camejoreig.senda.datos.Repositorio
 import camejoreig.senda.datos.Ruta
 
@@ -101,7 +102,11 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                     personal = { pantalla = Pantalla.Personal },
                 )
                 Pantalla.Personal -> PersonalScreen(repo = repo, voz = voz, volver = { pantalla = Pantalla.Viaje })
-                Pantalla.Llegada -> LlegadaScreen(inicio = { pantalla = Pantalla.Inicio }, celebrar = repo.ajustes?.celebrar ?: true)
+                Pantalla.Llegada -> LlegadaScreen(
+                    inicio = { pantalla = Pantalla.Inicio },
+                    celebrar = repo.ajustes?.celebrar ?: true,
+                    duracionMs = (repo.ajustes?.duracionCelebracion ?: DuracionCelebracion.LARGA).milisegundos,
+                )
                 Pantalla.Creador -> CreadorScreen(
                     repo = repo,
                     editar = { r, nueva -> pantalla = Pantalla.Editor(r, nueva) },

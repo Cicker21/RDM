@@ -45,6 +45,7 @@ import camejoreig.senda.Voz
 import camejoreig.senda.datos.Ajustes
 import camejoreig.senda.datos.AperturaApoyo
 import camejoreig.senda.datos.Contacto
+import camejoreig.senda.datos.DuracionCelebracion
 import camejoreig.senda.datos.ModoColor
 import camejoreig.senda.datos.Repositorio
 import camejoreig.senda.datos.TamanoLetra
@@ -135,6 +136,13 @@ fun AjustesScreen(repo: Repositorio, voz: Voz, volver: () -> Unit) {
                 Interruptor("Más contraste", a.altoContraste) { cambiar(a.copy(altoContraste = it)) }
                 Interruptor("Dibujos grandes en el viaje", a.dibujosGrandes) { cambiar(a.copy(dibujosGrandes = it)) }
                 Interruptor("Celebrar al llegar (confeti)", a.celebrar) { cambiar(a.copy(celebrar = it)) }
+                // La duración solo se enseña si la celebración está puesta
+                if (a.celebrar) {
+                    Etiqueta("Duración del confeti")
+                    Opciones(DuracionCelebracion.entries, a.duracionCelebracion, porFila = 2, elegir = { cambiar(a.copy(duracionCelebracion = it)) }) { d ->
+                        TextoOpcion(d.etiqueta)
+                    }
+                }
             }
 
             TituloSeccion("Persona de ayuda")

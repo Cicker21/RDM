@@ -25,10 +25,12 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /*
- * Celebración al llegar: confeti suave que cae desde arriba durante unos segundos.
+ * Celebración al llegar: confeti suave que va cayendo desde arriba durante un rato
+ * («Corta» o «Larga», se elige en Ajustes) y al final se desvanece.
  *
  * Pensado para que anime sin agobiar:
- * - Cae despacio, con un ligero balanceo, y al final se desvanece. Nada parpadea ni destella
+ * - Cae despacio, con un ligero balanceo. Al terminar el tiempo elegido se desvanece en 1 segundo
+ *   (el fundido va después, no lo acorta). Nada parpadea ni destella
  *   (regla de fotosensibilidad: nada cambia de brillo más de 3 veces por segundo).
  * - Usa los colores del tema elegido, así no aparecen colores nuevos de golpe.
  * - Se dibuja encima de la pantalla pero no tapa los botones: los toques pasan a través.
@@ -39,14 +41,17 @@ import kotlin.random.Random
  * No usa ninguna librería: se dibuja con Canvas de Compose.
  */
 
-private const val DURACION_MS = 3500
-private const val CANTIDAD = 70
+private const val FUNDIDO_MS = 1000 // desvanecerse al final, después del tiempo elegido
+private const val CANTIDAD = 150   // trozos de confeti a la vez
 
-/** Un trozo de confeti. Las posiciones y tiempos van de 0 a 1 (proporción de la pantalla o del tiempo). */
+/**
+ * Un trozo de confeti. Cae de arriba abajo una y otra vez hasta que se acaba el tiempo;
+ * al llegar abajo vuelve a empezar por encima de la pantalla, donde no se ve.
+ */
 private class Trozo(
-    val x: Float,          // posición horizontal de salida
-    val retraso: Float,    // cuándo empieza a caer
-    val velocidad: Float,  // qué parte de la pantalla recorre
+    val x: Float,          // posición horizontal de salida (0 = izquierda, 1 = derecha)
+    val retrasoMs: Int,    // cuándo empieza a caer la primera vez
+    val caidaMs: Int,      // cuánto tarda en cruzar la pantalla
     val vaiven: Float,     // cuánto se balancea a los lados (en dp)
     val fase: Float,       // para que no se balanceen todos a la vez
     val giro: Float,       // vueltas que da mientras cae (como mucho una)
@@ -56,10 +61,10 @@ private class Trozo(
 
 /**
  * Confeti encima de la pantalla. Ponerlo al final de un Box, después del contenido.
- * [activa] = el ajuste «Celebrar al llegar».
+ * [activa] = el ajuste «Celebrar al llegar»; [duracionMs] = cuánto rato cae (Corta 3 s, Larga 6 s).
  */
 @Composable
-fun Celebracion(activa: Boolean, modifier: Modifier = Modifier) {
+fun Celebracion(activa: Boolean, duracionMs: Int, modifier: Modifier = Modifier) {
     if (!activa) return
 
     // Vibración corta al llegar (no necesita permisos)
@@ -78,8 +83,8 @@ fun Celebracion(activa: Boolean, modifier: Modifier = Modifier) {
         List(CANTIDAD) {
             Trozo(
                 x = Random.nextFloat(),
-                retraso = Random.nextFloat() * 0.35f,
-                velocidad = 0.8f + Random.nextFloat() * 0.4f,
+                retrasoMs = Random.nextInt(1500),
+                caidaMs = 2600 + Random.nextInt(1400),
                 vaiven = 8f + Random.nextFloat() * 16f,
                 fase = Random.nextFloat() * 2f * PI.toFloat(),
                 giro = Random.nextFloat(),
@@ -89,25 +94,27 @@ fun Celebracion(activa: Boolean, modifier: Modifier = Modifier) {
         }
     }
 
-    // Reloj de la animación: va de 0 a 1 una sola vez
-    val tiempo = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { tiempo.animateTo(1f, tween(DURACION_MS, easing = LinearEasing)) }
-    if (tiempo.value >= 1f) return
+    // Reloj de la animación en milisegundos: el tiempo elegido y, después, el fundido
+    val total = duracionMs + FUNDIDO_MS
+    val reloj = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { reloj.animateTo(total.toFloat(), tween(total, easing = LinearEasing)) }
+    if (reloj.value >= total) return
 
     Canvas(modifier.fillMaxSize()) {
-        val t = tiempo.value
-        // El último cuarto del tiempo, todo se desvanece poco a poco
-        val opacidad = if (t > 0.75f) (1f - t) / 0.25f else 1f
+        val ms = reloj.value
+        // Durante el tiempo elegido se ve del todo; en el último segundo se desvanece poco a poco
+        val opacidad = if (ms > duracionMs) (total - ms) / FUNDIDO_MS else 1f
         val ancho = 8.dp.toPx()
         val alto = 5.dp.toPx()
         val radio = 3.5.dp.toPx()
 
         trozos.forEach { trozo ->
-            // Avance de este trozo (0 = todavía arriba, 1 = ha terminado de caer)
-            val p = ((t - trozo.retraso) / (1f - trozo.retraso)).coerceIn(0f, 1f)
-            if (p <= 0f) return@forEach
+            val desdeQueEmpezo = ms - trozo.retrasoMs
+            if (desdeQueEmpezo < 0f) return@forEach
+            // Avance dentro de la caída actual (0 = arriba, 1 = abajo); al llegar abajo vuelve a empezar
+            val p = (desdeQueEmpezo % trozo.caidaMs) / trozo.caidaMs
             val x = trozo.x * size.width + sin(p * 3f * PI.toFloat() + trozo.fase) * trozo.vaiven.dp.toPx()
-            val y = -20.dp.toPx() + p * trozo.velocidad * (size.height + 40.dp.toPx())
+            val y = -20.dp.toPx() + p * (size.height + 40.dp.toPx())
             val color: Color = colores[trozo.color].copy(alpha = opacidad)
 
             if (trozo.circulo) {
