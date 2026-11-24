@@ -110,7 +110,7 @@ fun GuiaScreen(
                         } else when (preguntas[pagina - 1]) {
                             Pregunta.LETRA -> PreguntaLetra(borrador.tamanoLetra) { borrador = borrador.copy(tamanoLetra = it) }
                             Pregunta.CONTRASTE -> PreguntaContraste(borrador.altoContraste) { borrador = borrador.copy(altoContraste = it) }
-                            Pregunta.COLORES -> PreguntaColores(borrador.tema, borrador.altoContraste) { borrador = borrador.copy(tema = it) }
+                            Pregunta.COLORES -> PreguntaColores(borrador.tema) { borrador = borrador.copy(tema = it) }
                             Pregunta.DIBUJOS -> PreguntaDibujos(borrador.dibujosGrandes) { borrador = borrador.copy(dibujosGrandes = it) }
                             Pregunta.VOZ -> PreguntaVoz(borrador.leerEnVozAlta, voz) { borrador = borrador.copy(leerEnVozAlta = it) }
                             Pregunta.CONTACTO -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
@@ -253,7 +253,7 @@ private fun PreguntaApoyo(actual: AperturaApoyo, elegir: (AperturaApoyo) -> Unit
  * y el color de los botones). Al tocarla, toda la pantalla cambia para verlo al momento.
  */
 @Composable
-private fun PreguntaColores(actual: TemaColor, altoContraste: Boolean, elegir: (TemaColor) -> Unit) {
+private fun PreguntaColores(actual: TemaColor, elegir: (TemaColor) -> Unit) {
     Text("¿Qué colores te gustan más?", style = MaterialTheme.typography.headlineSmall)
     TemaColor.entries.forEach { t ->
         BotonOpcion(elegido = actual == t, onClick = { elegir(t) }, modifier = Modifier.fillMaxWidth()) {
@@ -267,12 +267,6 @@ private fun PreguntaColores(actual: TemaColor, altoContraste: Boolean, elegir: (
             Spacer(Modifier.size(12.dp))
             Text(t.etiqueta, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
         }
-    }
-    if (altoContraste) {
-        Text(
-            "Tienes elegido «Más contraste»: mientras esté puesto, la app se ve en blanco y negro.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 

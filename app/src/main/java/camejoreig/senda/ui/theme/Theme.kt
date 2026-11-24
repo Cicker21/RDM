@@ -20,7 +20,7 @@ val LocalExtra = staticCompositionLocalOf { ExtraClaro }
  * - tamaño de letra,
  * - tema de color (Melocotón por defecto, Azul, Salvia, Lavanda),
  * - claro u oscuro («Según el móvil» usa el del teléfono; si el teléfono no tiene, claro),
- * - alto contraste, que tiene prioridad sobre el tema de color.
+ * - más contraste: el mismo tema de color, pero con colores más fuertes.
  */
 @Composable
 fun SendaTheme(
@@ -33,11 +33,7 @@ fun SendaTheme(
         ModoColor.OSCURO -> true
     }
     val contraste = ajustes.altoContraste
-    val colores = when {
-        contraste && oscuro -> OscuroContraste
-        contraste -> ClaroContraste
-        else -> esquema(ajustes.tema, oscuro)
-    }
+    val colores = if (contraste) esquemaContraste(ajustes.tema, oscuro) else esquema(ajustes.tema, oscuro)
     BarrasDelSistema(oscuro)
     CompositionLocalProvider(LocalExtra provides coloresExtra(ajustes.tema, oscuro, contraste)) {
         MaterialTheme(

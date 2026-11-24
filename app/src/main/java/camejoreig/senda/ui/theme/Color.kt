@@ -9,8 +9,9 @@ import camejoreig.senda.datos.TemaColor
 /*
  * Colores de Senda.
  *
- * Hay 4 temas (Melocotón, que es el de por defecto, Azul calma, Salvia y Lavanda), cada uno en claro y en oscuro,
- * y además los dos esquemas de alto contraste, que tienen prioridad sobre el tema.
+ * Hay 4 temas (Melocotón, que es el de por defecto, Azul calma, Salvia y Lavanda), cada uno en claro y en oscuro.
+ * «Más contraste» no cambia de tema: es el mismo tema, pero más marcado
+ * (botones y bordes en un tono más fuerte del tema; ver la tabla más abajo).
  *
  * Reglas para que cambiar de tema no despiste:
  * - El pastel solo va en fondos, tarjetas y el recuadro de los dibujos.
@@ -97,20 +98,67 @@ val LavandaOscuro = oscuro(
     texto = Color(0xFFF0ECF8), textoSecundario = Color(0xFFC7BFD9), borde = Color(0xFF3B3350),
 )
 
-// ---------- Alto contraste (tiene prioridad sobre el tema) ----------
+// ---------- Más contraste: el mismo tema, pero más marcado ----------
+//
+// No usa blanco y negro puros: sigue pareciéndose al tema, con un tinte muy suave en el fondo.
+// Respecto al modo normal sube sobre todo el texto de los botones, el texto secundario
+// y los bordes (que pasan de pastel a un tono oscuro del tema).
+//
+//   Tema / modo        texto/fondo  texto/tarjeta  botón  texto secundario  borde/fondo
+//   Melocotón claro       17,2          17,7         9,0        13,1             6,3
+//   Azul claro            16,8          17,4         8,9        12,0             6,1
+//   Salvia claro          16,8          17,5         8,5        11,8             5,6
+//   Lavanda claro         17,4          18,0         9,3        13,2             5,7
+//   Melocotón oscuro      17,2          15,9        11,2        12,8             8,5
+//   Azul oscuro           17,5          15,8        10,7        12,9             9,2
+//   Salvia oscuro         17,5          15,9        11,1        12,9            10,0
+//   Lavanda oscuro        17,5          16,1        10,6        12,7             9,0
+//
+// Verde y naranja con alto contraste (iguales en los 4 temas):
+//   claro  -> «Hecho» 7,7 · «Me he perdido» 8,1 (naranja oscurecido para llegar a 7 : 1)
+//   oscuro -> «Hecho» 11,8 · «Me he perdido» 10,4
 
-val ClaroContraste = lightColorScheme(
-    primary = Color(0xFF002B80), onPrimary = Color.White,
-    background = Color.White, onBackground = Color.Black,
-    surface = Color.White, onSurface = Color.Black,
-    onSurfaceVariant = Color.Black, outline = Color.Black,
-)
-val OscuroContraste = darkColorScheme(
-    primary = Color(0xFFFFE14D), onPrimary = Color.Black,
-    background = Color.Black, onBackground = Color.White,
-    surface = Color.Black, onSurface = Color.White,
-    onSurfaceVariant = Color.White, outline = Color.White,
-)
+/** Crea un esquema de alto contraste a partir de sus colores. */
+private fun contraste(
+    oscuro: Boolean, fondo: Color, tarjeta: Color, texto: Color, textoSecundario: Color,
+    borde: Color, principal: Color, textoPrincipal: Color,
+): ColorScheme = if (oscuro) {
+    darkColorScheme(
+        primary = principal, onPrimary = textoPrincipal,
+        background = fondo, onBackground = texto, surface = tarjeta, onSurface = texto,
+        onSurfaceVariant = textoSecundario, outline = borde,
+    )
+} else {
+    lightColorScheme(
+        primary = principal, onPrimary = textoPrincipal,
+        background = fondo, onBackground = texto, surface = tarjeta, onSurface = texto,
+        onSurfaceVariant = textoSecundario, outline = borde,
+    )
+}
+
+/** Esquema de alto contraste de un tema, en claro u oscuro. */
+fun esquemaContraste(tema: TemaColor, oscuro: Boolean): ColorScheme = when (tema) {
+    TemaColor.MELOCOTON -> if (oscuro) {
+        contraste(true, Color(0xFF120B0C), Color(0xFF1D1415), Color(0xFFF7EFEF), Color(0xFFE6D5D7), Color(0xFFD99AAA), Color(0xFFFFB8C9), Color(0xFF2A0A14))
+    } else {
+        contraste(false, Color(0xFFFFF9F5), Color(0xFFFFFDFB), Color(0xFF1E1416), Color(0xFF3D2B2F), Color(0xFF8A4A5C), Color(0xFF7A2944), Color(0xFFFFF8F5))
+    }
+    TemaColor.AZUL -> if (oscuro) {
+        contraste(true, Color(0xFF0A0E17), Color(0xFF131A28), Color(0xFFF1F4FA), Color(0xFFD6DEEC), Color(0xFF9AB3E6), Color(0xFFAFC6FF), Color(0xFF0A1430))
+    } else {
+        contraste(false, Color(0xFFF7F9FD), Color(0xFFFCFDFF), Color(0xFF111827), Color(0xFF2A3550), Color(0xFF4A5E8A), Color(0xFF1D4294), Color(0xFFF8FAFF))
+    }
+    TemaColor.SALVIA -> if (oscuro) {
+        contraste(true, Color(0xFF0A100E), Color(0xFF131C19), Color(0xFFF0F6F2), Color(0xFFD2E2D8), Color(0xFF8CC7B9), Color(0xFF97E0E4), Color(0xFF052326))
+    } else {
+        contraste(false, Color(0xFFF6FAF6), Color(0xFFFCFEFC), Color(0xFF121A17), Color(0xFF2A3A33), Color(0xFF4C6B5E), Color(0xFF0F5259), Color(0xFFF5FCFB))
+    }
+    TemaColor.LAVANDA -> if (oscuro) {
+        contraste(true, Color(0xFF0E0B15), Color(0xFF191424), Color(0xFFF4F1FA), Color(0xFFDDD5EE), Color(0xFFB8A6E8), Color(0xFFD2C2FF), Color(0xFF1E1240))
+    } else {
+        contraste(false, Color(0xFFFAF8FD), Color(0xFFFDFCFF), Color(0xFF17121F), Color(0xFF33294A), Color(0xFF6A5A96), Color(0xFF48309A), Color(0xFFFBF9FF))
+    }
+}
 
 // ---------- Elegir colores ----------
 
@@ -132,8 +180,8 @@ fun fondoIcono(tema: TemaColor, oscuro: Boolean): Color = when (tema) {
 
 /** Verde y naranja fijos (iguales en todos los temas). El naranja claro se oscureció para llegar a 5,1 : 1. */
 fun coloresExtra(tema: TemaColor, oscuro: Boolean, contraste: Boolean): ColoresExtra = when {
-    oscuro && contraste -> ColoresExtra(Color(0xFF3DDC84), Color.Black, Color(0xFFFFA040), Color.Black, Color.Black)
-    contraste -> ColoresExtra(Color(0xFF00602F), Color.White, Color(0xFF9E3D00), Color.White, Color.White)
+    oscuro && contraste -> ColoresExtra(Color(0xFF3DDC84), Color.Black, Color(0xFFFFA040), Color.Black, fondoIcono(tema, true))
+    contraste -> ColoresExtra(Color(0xFF00602F), Color.White, Color(0xFF8A3500), Color.White, fondoIcono(tema, false))
     oscuro -> ColoresExtra(Color(0xFF2FA96A), Color(0xFF04140B), Color(0xFFFF9640), Color(0xFF1D0D00), fondoIcono(tema, true))
     else -> ColoresExtra(Color(0xFF157A46), Color.White, Color(0xFFB35200), Color.White, fondoIcono(tema, false))
 }
