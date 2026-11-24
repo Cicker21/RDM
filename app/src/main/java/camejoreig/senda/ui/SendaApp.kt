@@ -55,7 +55,6 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
         GuiaScreen(
             inicial = Ajustes(),
             voz = voz,
-            esPrimeraVez = true,
             guardar = { repo.guardarAjustes(it) }, // al guardarse, repo.ajustes deja de ser null y se ve el inicio
         )
         return
@@ -76,12 +75,6 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
             is Pantalla.Editor -> Pantalla.Creador
             else -> Pantalla.Inicio // el viaje queda guardado y se puede seguir desde el inicio
         }
-    }
-
-    // AjustesScreen dibuja su propio fondo (usa el tema con los cambios sin guardar)
-    if (actual == Pantalla.CambiarAjustes) {
-        AjustesScreen(repo, voz, volver = { pantalla = Pantalla.Inicio })
-        return
     }
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -124,7 +117,7 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                     abrirAjustes = { pantalla = Pantalla.CambiarAjustes },
                 )
                 Pantalla.Ayuda -> AyudaScreen(repo = repo, voz = voz, volver = { pantalla = Pantalla.Inicio })
-                Pantalla.CambiarAjustes -> Unit // se dibuja arriba
+                Pantalla.CambiarAjustes -> AjustesScreen(repo, voz, volver = { pantalla = Pantalla.Inicio })
             }
         }
     }
