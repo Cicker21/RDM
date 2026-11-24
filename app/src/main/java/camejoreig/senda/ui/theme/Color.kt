@@ -9,7 +9,7 @@ import camejoreig.senda.datos.TemaColor
 /*
  * Colores de Senda.
  *
- * Hay 4 temas (Azul calma, Melocotón, Salvia y Lavanda), cada uno en claro y en oscuro,
+ * Hay 4 temas (Melocotón, que es el de por defecto, Azul calma, Salvia y Lavanda), cada uno en claro y en oscuro,
  * y además los dos esquemas de alto contraste, que tienen prioridad sobre el tema.
  *
  * Reglas para que cambiar de tema no despiste:
@@ -139,4 +139,4 @@ fun coloresExtra(tema: TemaColor, oscuro: Boolean, contraste: Boolean): ColoresE
 }
 
 /** Valor inicial de LocalExtra (por si alguna pantalla se dibuja fuera de SendaTheme). */
-val ExtraClaro = coloresExtra(TemaColor.AZUL, oscuro = false, contraste = false)
+val ExtraClaro = coloresExtra(TemaColor.MELOCOTON, oscuro = false, contraste = false)

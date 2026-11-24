@@ -144,7 +144,7 @@ class Repositorio(private val ctx: Context) {
             contacto = Contacto(c?.optString("nombre").orEmpty(), c?.optString("telefono").orEmpty()),
             // Los archivos guardados antes de existir esta opción no la tienen: se usan 2 segundos
             aperturaApoyo = runCatching { AperturaApoyo.valueOf(o.getString("aperturaApoyo")) }.getOrDefault(AperturaApoyo.DOS_SEGUNDOS),
-            tema = runCatching { TemaColor.valueOf(o.getString("tema")) }.getOrDefault(TemaColor.AZUL),
+            tema = runCatching { TemaColor.valueOf(o.getString("tema")) }.getOrDefault(TemaColor.MELOCOTON),
             modo = runCatching { ModoColor.valueOf(o.getString("modo")) }.getOrDefault(ModoColor.SEGUN_MOVIL),
         )
     }

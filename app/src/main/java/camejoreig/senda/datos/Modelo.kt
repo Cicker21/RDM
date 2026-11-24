@@ -50,8 +50,8 @@ enum class TamanoLetra(val escala: Float, val etiqueta: String) {
  * el verde de «Hecho» y el naranja de «Me he perdido» son iguales en todos.
  */
 enum class TemaColor(val etiqueta: String) {
+    MELOCOTON("Melocotón"), // el de por defecto: cálido y suave
     AZUL("Azul calma"),
-    MELOCOTON("Melocotón"),
     SALVIA("Salvia"),
     LAVANDA("Lavanda"),
 }
@@ -85,6 +85,6 @@ data class Ajustes(
     val leerEnVozAlta: Boolean = false,  // lee cada paso automáticamente al aparecer
     val contacto: Contacto = Contacto(),
     val aperturaApoyo: AperturaApoyo = AperturaApoyo.DOS_SEGUNDOS, // solo se cambia en Ajustes
-    val tema: TemaColor = TemaColor.AZUL,
+    val tema: TemaColor = TemaColor.MELOCOTON,
     val modo: ModoColor = ModoColor.SEGUN_MOVIL, // solo se cambia en Ajustes
 )
