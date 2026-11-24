@@ -46,6 +46,17 @@ enum class TamanoLetra(val escala: Float, val etiqueta: String) {
 }
 
 /**
+ * Cómo se abre el botón «Apoyo» del inicio (lo elige la persona de apoyo en Ajustes).
+ * Mantenerlo pulsado unos segundos evita que se abra sin querer. 0 segundos = un toque normal.
+ */
+enum class AperturaApoyo(val segundos: Int, val etiqueta: String) {
+    AL_TOQUE(0, "Al momento, con un toque"),
+    UN_SEGUNDO(1, "Mantener 1 segundo"),
+    DOS_SEGUNDOS(2, "Mantener 2 segundos"),
+    TRES_SEGUNDOS(3, "Mantener 3 segundos"),
+}
+
+/**
  * Configuración del usuario, rellenada en la guía la primera vez (GuiaScreen)
  * y modificable después en AjustesScreen.
  */
@@ -55,4 +66,5 @@ data class Ajustes(
     val dibujosGrandes: Boolean = false, // para quien se apoya más en imágenes que en texto
     val leerEnVozAlta: Boolean = false,  // lee cada paso automáticamente al aparecer
     val contacto: Contacto = Contacto(),
+    val aperturaApoyo: AperturaApoyo = AperturaApoyo.DOS_SEGUNDOS, // solo se cambia en Ajustes
 )

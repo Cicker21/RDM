@@ -25,7 +25,9 @@ import camejoreig.senda.datos.Ruta
  *   ¿Hay ajustes guardados?
  *     No -> GuiaScreen (primera vez) -> guarda ajustes -> InicioScreen
  *     Sí -> InicioScreen
- *   InicioScreen -> Viaje (Orquestador) | CreadorScreen | AjustesScreen | AyudaScreen
+ *   InicioScreen -> Viaje (Orquestador) | AyudaScreen | ApoyoScreen (mantener pulsado)
+ *   ApoyoScreen  -> CreadorScreen | AjustesScreen
+ *   Al salir de Creador, Ajustes o Ayuda se vuelve siempre al inicio.
  *
  * Para no añadir dependencias, la navegación es una simple variable de estado
  * ("pantalla"). Si la app crece mucho se puede pasar a Navigation Compose.
@@ -42,6 +44,7 @@ sealed interface Pantalla {
     data class Editor(val ruta: Ruta, val esNueva: Boolean) : Pantalla
     data object CambiarAjustes : Pantalla
     data object Ayuda : Pantalla
+    data object Apoyo : Pantalla
 }
 
 @Composable
@@ -86,10 +89,11 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
             when (val p = actual) {
                 Pantalla.Inicio -> InicioScreen(
                     repo = repo,
+                    voz = voz,
                     empezar = { id -> repo.empezar(id); pantalla = Pantalla.Viaje },
                     continuar = { pantalla = Pantalla.Viaje },
                     abrirCreador = { pantalla = Pantalla.Creador },
-                    abrirAjustes = { pantalla = Pantalla.CambiarAjustes },
+                    abrirApoyo = { pantalla = Pantalla.Apoyo },
                     abrirAyuda = { pantalla = Pantalla.Ayuda },
                 )
                 Pantalla.Viaje -> ViajeScreen(
@@ -113,6 +117,11 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                 is Pantalla.Editor -> EditorRutaScreen(
                     repo = repo, original = p.ruta, esNueva = p.esNueva,
                     cerrar = { pantalla = Pantalla.Creador },
+                )
+                Pantalla.Apoyo -> ApoyoScreen(
+                    inicio = { pantalla = Pantalla.Inicio },
+                    abrirCreador = { pantalla = Pantalla.Creador },
+                    abrirAjustes = { pantalla = Pantalla.CambiarAjustes },
                 )
                 Pantalla.Ayuda -> AyudaScreen(repo = repo, voz = voz, volver = { pantalla = Pantalla.Inicio })
                 Pantalla.CambiarAjustes -> Unit // se dibuja arriba

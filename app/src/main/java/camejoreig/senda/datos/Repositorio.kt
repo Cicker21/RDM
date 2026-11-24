@@ -130,6 +130,7 @@ class Repositorio(private val ctx: Context) {
         .put("dibujosGrandes", a.dibujosGrandes)
         .put("leerEnVozAlta", a.leerEnVozAlta)
         .put("contacto", JSONObject().put("nombre", a.contacto.nombre).put("telefono", a.contacto.telefono))
+        .put("aperturaApoyo", a.aperturaApoyo.name)
 
     private fun ajustesDesdeJson(o: JSONObject): Ajustes {
         val c = o.optJSONObject("contacto")
@@ -139,6 +140,8 @@ class Repositorio(private val ctx: Context) {
             dibujosGrandes = o.optBoolean("dibujosGrandes"),
             leerEnVozAlta = o.optBoolean("leerEnVozAlta"),
             contacto = Contacto(c?.optString("nombre").orEmpty(), c?.optString("telefono").orEmpty()),
+            // Los archivos guardados antes de existir esta opción no la tienen: se usan 2 segundos
+            aperturaApoyo = runCatching { AperturaApoyo.valueOf(o.getString("aperturaApoyo")) }.getOrDefault(AperturaApoyo.DOS_SEGUNDOS),
         )
     }
 
