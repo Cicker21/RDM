@@ -26,11 +26,11 @@ import kotlin.random.Random
 
 /*
  * Celebración al llegar: confeti suave que va cayendo desde arriba durante un rato
- * («Corta» o «Larga», se elige en Ajustes) y al final se desvanece.
+ * («Corta» o «Larga», se elige en Ajustes). Pasado ese rato ya no sale confeti nuevo,
+ * y el que está cayendo termina de bajar hasta salir por abajo (no desaparece a medias).
  *
  * Pensado para que anime sin agobiar:
- * - Cae despacio, con un ligero balanceo. Al terminar el tiempo elegido se desvanece en 1 segundo
- *   (el fundido va después, no lo acorta). Nada parpadea ni destella
+ * - Cae despacio, con un ligero balanceo. Nada parpadea ni destella
  *   (regla de fotosensibilidad: nada cambia de brillo más de 3 veces por segundo).
  * - Usa los colores del tema elegido, así no aparecen colores nuevos de golpe.
  * - Se dibuja encima de la pantalla pero no tapa los botones: los toques pasan a través.
@@ -41,7 +41,7 @@ import kotlin.random.Random
  * No usa ninguna librería: se dibuja con Canvas de Compose.
  */
 
-private const val FUNDIDO_MS = 1000 // desvanecerse al final, después del tiempo elegido
+private const val CAIDA_MAS_LENTA_MS = 4000 // lo más que tarda un trozo en cruzar la pantalla
 private const val CANTIDAD = 150   // trozos de confeti en total
 
 /**
@@ -62,7 +62,7 @@ private class Trozo(
 
 /**
  * Confeti encima de la pantalla. Ponerlo al final de un Box, después del contenido.
- * [activa] = el ajuste «Celebrar al llegar»; [duracionMs] = cuánto rato cae (Corta 3 s, Larga 6 s).
+ * [activa] = el ajuste «Celebrar al llegar»; [duracionMs] = cuánto rato sale confeti nuevo (Corta 2 s, Larga 5 s).
  */
 @Composable
 fun Celebracion(activa: Boolean, duracionMs: Int, modifier: Modifier = Modifier) {
@@ -95,16 +95,15 @@ fun Celebracion(activa: Boolean, duracionMs: Int, modifier: Modifier = Modifier)
         }
     }
 
-    // Reloj de la animación en milisegundos: el tiempo elegido y, después, el fundido
-    val total = duracionMs + FUNDIDO_MS
+    // Reloj de la animación en milisegundos: el tiempo elegido y, después, lo que tarda
+    // el último trozo en llegar abajo
+    val total = duracionMs + CAIDA_MAS_LENTA_MS + 200
     val reloj = remember { Animatable(0f) }
     LaunchedEffect(Unit) { reloj.animateTo(total.toFloat(), tween(total, easing = LinearEasing)) }
     if (reloj.value >= total) return
 
     Canvas(modifier.fillMaxSize()) {
         val ms = reloj.value
-        // Durante el tiempo elegido se ve del todo; en el último segundo se desvanece poco a poco
-        val opacidad = if (ms > duracionMs) (total - ms) / FUNDIDO_MS else 1f
         val ancho = 8.dp.toPx()
         val alto = 5.dp.toPx()
         val radio = 3.5.dp.toPx()
@@ -122,16 +121,15 @@ fun Celebracion(activa: Boolean, duracionMs: Int, modifier: Modifier = Modifier)
             // Cuántas veces ha cruzado ya la pantalla, y cuánto lleva de la caída actual (0 a 1)
             val vuelta = (distancia / recorrido).toInt()
             val p = (distancia % recorrido) / recorrido
-            // Pasado el tiempo elegido, los trozos que salen por abajo ya no vuelven a entrar
-            if (vuelta > 0) {
-                val empezoEstaVuelta = (vuelta * recorrido + trozo.salida * size.height) / velocidad
-                if (empezoEstaVuelta > duracionMs) return@forEach
-            }
+            // Solo cuentan las caídas que empezaron (entrando por arriba) dentro del tiempo elegido.
+            // Las que ya estaban cayendo siguen hasta salir por abajo.
+            val empezoEstaVuelta = (vuelta * recorrido + trozo.salida * size.height) / velocidad
+            if (empezoEstaVuelta > duracionMs) return@forEach
             // En cada vuelta entra por un sitio distinto (desplazamiento con la proporción áurea)
             val xVuelta = (trozo.x + vuelta * 0.618034f) % 1f
             val x = xVuelta * size.width + sin(p * 3f * PI.toFloat() + trozo.fase) * trozo.vaiven.dp.toPx()
             val y = -margen + p * recorrido
-            val color: Color = colores[trozo.color].copy(alpha = opacidad)
+            val color: Color = colores[trozo.color]
 
             if (trozo.circulo) {
                 drawCircle(color, radio, Offset(x, y))

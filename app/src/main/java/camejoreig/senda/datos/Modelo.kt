@@ -63,10 +63,13 @@ enum class ModoColor(val etiqueta: String) {
     OSCURO("Oscuro"),
 }
 
-/** Cuánto dura el confeti al llegar. Los segundos no se enseñan en pantalla, solo «Corta» o «Larga». */
+/**
+ * Cuánto rato sigue cayendo confeti desde arriba al llegar. Después, el que ya está cayendo
+ * termina de bajar hasta salir por abajo. Los segundos no se enseñan en pantalla, solo «Corta» o «Larga».
+ */
 enum class DuracionCelebracion(val milisegundos: Int, val etiqueta: String) {
-    CORTA(3000, "Corta"),
-    LARGA(6000, "Larga"),
+    CORTA(2000, "Corta"),
+    LARGA(5000, "Larga"),
 }
 
 /**
