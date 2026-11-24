@@ -133,6 +133,7 @@ class Repositorio(private val ctx: Context) {
         .put("aperturaApoyo", a.aperturaApoyo.name)
         .put("tema", a.tema.name)
         .put("modo", a.modo.name)
+        .put("celebrar", a.celebrar)
 
     private fun ajustesDesdeJson(o: JSONObject): Ajustes {
         val c = o.optJSONObject("contacto")
@@ -146,6 +147,7 @@ class Repositorio(private val ctx: Context) {
             aperturaApoyo = runCatching { AperturaApoyo.valueOf(o.getString("aperturaApoyo")) }.getOrDefault(AperturaApoyo.DOS_SEGUNDOS),
             tema = runCatching { TemaColor.valueOf(o.getString("tema")) }.getOrDefault(TemaColor.MELOCOTON),
             modo = runCatching { ModoColor.valueOf(o.getString("modo")) }.getOrDefault(ModoColor.SEGUN_MOVIL),
+            celebrar = o.optBoolean("celebrar", true), // si no está guardado (versión antigua), sí
         )
     }
 

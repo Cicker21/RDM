@@ -231,7 +231,8 @@ fun PersonalScreen(repo: Repositorio, voz: Voz, volver: () -> Unit) {
 // Llegada
 // ---------------------------------------------------------------
 @Composable
-fun LlegadaScreen(inicio: () -> Unit) {
+fun LlegadaScreen(inicio: () -> Unit, celebrar: Boolean = true) {
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Spacer(Modifier.weight(1f))
         VisualPaso(Paso("", Icono.TRABAJO), tamano = 140.dp)
@@ -239,5 +240,7 @@ fun LlegadaScreen(inicio: () -> Unit) {
         Text("Lo has hecho tú.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.weight(1f))
         BotonGrande("Volver al inicio", inicio)
+    }
+    Celebracion(activa = celebrar) // confeti encima (ui/Celebracion.kt); no tapa el botón
     }
 }

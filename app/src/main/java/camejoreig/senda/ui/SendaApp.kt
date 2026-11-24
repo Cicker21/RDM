@@ -101,7 +101,7 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                     personal = { pantalla = Pantalla.Personal },
                 )
                 Pantalla.Personal -> PersonalScreen(repo = repo, voz = voz, volver = { pantalla = Pantalla.Viaje })
-                Pantalla.Llegada -> LlegadaScreen(inicio = { pantalla = Pantalla.Inicio })
+                Pantalla.Llegada -> LlegadaScreen(inicio = { pantalla = Pantalla.Inicio }, celebrar = repo.ajustes?.celebrar ?: true)
                 Pantalla.Creador -> CreadorScreen(
                     repo = repo,
                     editar = { r, nueva -> pantalla = Pantalla.Editor(r, nueva) },

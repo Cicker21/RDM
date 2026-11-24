@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -132,6 +134,7 @@ fun AjustesScreen(repo: Repositorio, voz: Voz, volver: () -> Unit) {
                 Opciones(ModoColor.entries, a.modo, porFila = 3, elegir = { cambiar(a.copy(modo = it)) }) { m -> TextoOpcion(m.etiqueta) }
                 Interruptor("Más contraste", a.altoContraste) { cambiar(a.copy(altoContraste = it)) }
                 Interruptor("Dibujos grandes en el viaje", a.dibujosGrandes) { cambiar(a.copy(dibujosGrandes = it)) }
+                Interruptor("Celebrar al llegar (confeti)", a.celebrar) { cambiar(a.copy(celebrar = it)) }
             }
 
             TituloSeccion("Persona de ayuda")
@@ -200,14 +203,18 @@ private fun TextoOpcion(texto: String) {
  */
 @Composable
 private fun Interruptor(texto: String, activo: Boolean, cambiar: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
+    // Toda la fila se puede tocar, no solo el interruptor (es más fácil acertar)
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(value = activo, role = Role.Switch, onValueChange = cambiar),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Text(texto, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Text(
             if (activo) "Sí" else "No",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(horizontal = 12.dp),
         )
-        Switch(checked = activo, onCheckedChange = cambiar)
+        Switch(checked = activo, onCheckedChange = null) // el toque lo recoge la fila entera
     }
 }
 

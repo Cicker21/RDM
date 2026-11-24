@@ -87,4 +87,5 @@ data class Ajustes(
     val aperturaApoyo: AperturaApoyo = AperturaApoyo.DOS_SEGUNDOS, // solo se cambia en Ajustes
     val tema: TemaColor = TemaColor.MELOCOTON,
     val modo: ModoColor = ModoColor.SEGUN_MOVIL, // solo se cambia en Ajustes
+    val celebrar: Boolean = true, // confeti al llegar al destino
 )
