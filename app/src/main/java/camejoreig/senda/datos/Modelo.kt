@@ -46,6 +46,24 @@ enum class TamanoLetra(val escala: Float, val etiqueta: String) {
 }
 
 /**
+ * Tema de color de la app. Solo cambia el «ambiente» (fondos y botones principales);
+ * el verde de «Hecho» y el naranja de «Me he perdido» son iguales en todos.
+ */
+enum class TemaColor(val etiqueta: String) {
+    AZUL("Azul calma"),
+    MELOCOTON("Melocotón"),
+    SALVIA("Salvia"),
+    LAVANDA("Lavanda"),
+}
+
+/** Claro u oscuro. «Según el móvil» sigue lo que tenga puesto el teléfono (si no tiene, claro). */
+enum class ModoColor(val etiqueta: String) {
+    SEGUN_MOVIL("Según el móvil"),
+    CLARO("Claro"),
+    OSCURO("Oscuro"),
+}
+
+/**
  * Cómo se abre el botón «Apoyo» del inicio (lo elige la persona de apoyo en Ajustes).
  * Mantenerlo pulsado unos segundos evita que se abra sin querer. 0 segundos = un toque normal.
  */
@@ -67,4 +85,6 @@ data class Ajustes(
     val leerEnVozAlta: Boolean = false,  // lee cada paso automáticamente al aparecer
     val contacto: Contacto = Contacto(),
     val aperturaApoyo: AperturaApoyo = AperturaApoyo.DOS_SEGUNDOS, // solo se cambia en Ajustes
+    val tema: TemaColor = TemaColor.AZUL,
+    val modo: ModoColor = ModoColor.SEGUN_MOVIL, // solo se cambia en Ajustes
 )
