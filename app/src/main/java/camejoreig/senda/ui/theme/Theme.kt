@@ -6,34 +6,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import camejoreig.senda.datos.Ajustes
+import camejoreig.senda.datos.ModoColor
 
 /** Permite leer los colores extra desde cualquier pantalla con LocalExtra.current */
 val LocalExtra = staticCompositionLocalOf { ExtraClaro }
 
 /**
- * Tema de Senda. Se adapta a lo que el usuario eligió en la guía:
- * tamaño de letra y alto contraste. El modo claro/oscuro sigue al del móvil.
+ * Tema de Senda. Se adapta a lo que se eligió en la guía y en Ajustes:
+ * - tamaño de letra,
+ * - tema de color (Azul, Melocotón, Salvia, Lavanda),
+ * - claro u oscuro («Según el móvil» usa el del teléfono; si el teléfono no tiene, claro),
+ * - alto contraste, que tiene prioridad sobre el tema de color.
  */
 @Composable
 fun SendaTheme(
     ajustes: Ajustes = Ajustes(),
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+    val oscuro = when (ajustes.modo) {
+        ModoColor.SEGUN_MOVIL -> isSystemInDarkTheme()
+        ModoColor.CLARO -> false
+        ModoColor.OSCURO -> true
+    }
     val contraste = ajustes.altoContraste
     val colores = when {
-        darkTheme && contraste -> OscuroContraste
-        darkTheme -> Oscuro
+        contraste && oscuro -> OscuroContraste
         contraste -> ClaroContraste
-        else -> Claro
+        else -> esquema(ajustes.tema, oscuro)
     }
-    val extra = when {
-        darkTheme && contraste -> ExtraOscuroContraste
-        darkTheme -> ExtraOscuro
-        contraste -> ExtraClaroContraste
-        else -> ExtraClaro
-    }
-    CompositionLocalProvider(LocalExtra provides extra) {
+    CompositionLocalProvider(LocalExtra provides coloresExtra(ajustes.tema, oscuro, contraste)) {
         MaterialTheme(
             colorScheme = colores,
             typography = tipografia(ajustes.tamanoLetra.escala),
