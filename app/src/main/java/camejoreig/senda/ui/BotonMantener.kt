@@ -11,7 +11,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -74,7 +73,7 @@ fun BotonIcono(texto: String, icono: ImageVector, onClick: () -> Unit, modifier:
  * - Mientras se mantiene, el fondo se va llenando de izquierda a derecha.
  * - Si se suelta antes, se vacía y no pasa nada (se llama a [alTocar] para poder enseñar un aviso).
  * - Al llenarse del todo, el móvil vibra un poco y se llama a [alCompletar].
- * - Lleva un texto fijo pequeño («Mantén pulsado») para que se sepa sin tener que probar.
+ * - No lleva texto de «mantén pulsado»: si alguien da un toque, el aviso ya le explica cómo abrirlo.
  * - Con TalkBack se puede abrir con la acción de «mantener pulsado» del propio lector.
  */
 @Composable
@@ -133,14 +132,7 @@ fun BotonMantener(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(icono, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
-            Column {
-                Text(texto, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                Text(
-                    "Mantén pulsado",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize * 0.7f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Text(texto, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

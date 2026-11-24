@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
  * - Arriba, fijo (no se mueve al bajar): «Ayuda» (un toque, para la persona) y «Apoyo»
  *   (mantener pulsado, para la persona de apoyo), y el título «¿A dónde vas?».
  * - Debajo, lo único que se desplaza: el viaje a medias (si lo hay) y las rutas guardadas.
- * - Si todavía no hay rutas: «Crear mi primera ruta» y «Ayuda», grandes.
+ * - Si todavía no hay rutas: «Crear mi primera ruta», grande.
  */
 @Composable
 fun InicioScreen(
@@ -109,7 +109,6 @@ fun InicioScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         BotonGrande("Crear mi primera ruta", abrirCreador)
-                        BotonIcono("Ayuda", Icons.AutoMirrored.Filled.Help, abrirAyuda, Modifier.fillMaxWidth())
                     }
                 }
             }
