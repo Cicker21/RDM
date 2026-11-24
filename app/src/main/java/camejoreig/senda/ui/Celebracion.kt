@@ -42,16 +42,17 @@ import kotlin.random.Random
  */
 
 private const val FUNDIDO_MS = 1000 // desvanecerse al final, después del tiempo elegido
-private const val CANTIDAD = 150   // trozos de confeti a la vez
+private const val CANTIDAD = 150   // trozos de confeti en total
 
 /**
- * Un trozo de confeti. Cae de arriba abajo una y otra vez hasta que se acaba el tiempo;
- * al llegar abajo vuelve a empezar por encima de la pantalla, donde no se ve.
+ * Un trozo de confeti. Empieza un poco por encima de la pantalla (cada uno a una altura distinta)
+ * y cae a su propia velocidad. Al salir por abajo vuelve a entrar por arriba, en otro sitio,
+ * mientras dure la celebración. Así siempre hay confeti a todas las alturas, sin huecos.
  */
 private class Trozo(
-    val x: Float,          // posición horizontal de salida (0 = izquierda, 1 = derecha)
-    val retrasoMs: Int,    // cuándo empieza a caer la primera vez
-    val caidaMs: Int,      // cuánto tarda en cruzar la pantalla
+    val x: Float,          // posición horizontal de la primera caída (0 = izquierda, 1 = derecha)
+    val salida: Float,     // a qué altura por encima de la pantalla empieza (0 = justo arriba, 1 = una pantalla más arriba)
+    val caidaMs: Int,      // cuánto tarda en cruzar la pantalla (su velocidad)
     val vaiven: Float,     // cuánto se balancea a los lados (en dp)
     val fase: Float,       // para que no se balanceen todos a la vez
     val giro: Float,       // vueltas que da mientras cae (como mucho una)
@@ -83,7 +84,7 @@ fun Celebracion(activa: Boolean, duracionMs: Int, modifier: Modifier = Modifier)
         List(CANTIDAD) {
             Trozo(
                 x = Random.nextFloat(),
-                retrasoMs = Random.nextInt(1500),
+                salida = Random.nextFloat(),
                 caidaMs = 2600 + Random.nextInt(1400),
                 vaiven = 8f + Random.nextFloat() * 16f,
                 fase = Random.nextFloat() * 2f * PI.toFloat(),
@@ -108,13 +109,28 @@ fun Celebracion(activa: Boolean, duracionMs: Int, modifier: Modifier = Modifier)
         val alto = 5.dp.toPx()
         val radio = 3.5.dp.toPx()
 
+        val margen = 20.dp.toPx()
+        val recorrido = size.height + 2 * margen // de justo encima de la pantalla a justo debajo
+
         trozos.forEach { trozo ->
-            val desdeQueEmpezo = ms - trozo.retrasoMs
-            if (desdeQueEmpezo < 0f) return@forEach
-            // Avance dentro de la caída actual (0 = arriba, 1 = abajo); al llegar abajo vuelve a empezar
-            val p = (desdeQueEmpezo % trozo.caidaMs) / trozo.caidaMs
-            val x = trozo.x * size.width + sin(p * 3f * PI.toFloat() + trozo.fase) * trozo.vaiven.dp.toPx()
-            val y = -20.dp.toPx() + p * (size.height + 40.dp.toPx())
+            val velocidad = recorrido / trozo.caidaMs // píxeles por milisegundo
+            // Distancia caída desde la altura de salida (que está por encima de la pantalla)
+            val distancia = ms * velocidad - trozo.salida * size.height
+            if (distancia < 0f) {
+                return@forEach // todavía por encima de la pantalla: no se ve
+            }
+            // Cuántas veces ha cruzado ya la pantalla, y cuánto lleva de la caída actual (0 a 1)
+            val vuelta = (distancia / recorrido).toInt()
+            val p = (distancia % recorrido) / recorrido
+            // Pasado el tiempo elegido, los trozos que salen por abajo ya no vuelven a entrar
+            if (vuelta > 0) {
+                val empezoEstaVuelta = (vuelta * recorrido + trozo.salida * size.height) / velocidad
+                if (empezoEstaVuelta > duracionMs) return@forEach
+            }
+            // En cada vuelta entra por un sitio distinto (desplazamiento con la proporción áurea)
+            val xVuelta = (trozo.x + vuelta * 0.618034f) % 1f
+            val x = xVuelta * size.width + sin(p * 3f * PI.toFloat() + trozo.fase) * trozo.vaiven.dp.toPx()
+            val y = -margen + p * recorrido
             val color: Color = colores[trozo.color].copy(alpha = opacidad)
 
             if (trozo.circulo) {
