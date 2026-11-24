@@ -1,5 +1,8 @@
 package camejoreig.senda.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,40 +35,45 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import camejoreig.senda.Voz
 import camejoreig.senda.datos.Ajustes
-import camejoreig.senda.datos.AperturaApoyo
 import camejoreig.senda.datos.Contacto
 import camejoreig.senda.datos.Icono
 import camejoreig.senda.datos.Paso
 import camejoreig.senda.datos.TamanoLetra
+import camejoreig.senda.datos.TemaColor
 import camejoreig.senda.ui.theme.SendaTheme
+import camejoreig.senda.ui.theme.esquema
+import camejoreig.senda.ui.theme.fondoIcono
 
 /*
  * GuiaScreen: formulario sencillo que adapta Senda a la persona.
  * - Aparece la primera vez que se abre la app (no hay ajustes guardados).
- * - AjustesScreen reutiliza este mismo formulario para cambiar lo elegido.
+ * - Después, todo se cambia en AjustesScreen (una ventana con todos los ajustes juntos).
  *
  * Una pregunta por pantalla, con respuestas en botones grandes. Todas las preguntas
  * tienen una respuesta por defecto, así que el formulario siempre se puede completar.
  * Los cambios se ven al momento (letra, contraste) para que la persona elija viéndolo.
- *
- * En Ajustes (no la primera vez) hay una pregunta más, para la persona de apoyo:
- * cómo se abre el botón «Apoyo» del inicio.
  */
 
-private const val PREGUNTAS_GUIA = 5
+/** Todas las preguntas, en el orden en que salen. */
+private enum class Pregunta { LETRA, CONTRASTE, COLORES, DIBUJOS, VOZ, CONTACTO }
+
+/** Preguntas de la guía, en orden. Lo demás (claro u oscuro, botón Apoyo) se cambia en Ajustes. */
+private val PREGUNTAS_GUIA = listOf(
+    Pregunta.LETRA, Pregunta.CONTRASTE, Pregunta.COLORES, Pregunta.DIBUJOS, Pregunta.VOZ, Pregunta.CONTACTO,
+)
+
 
 @Composable
 fun GuiaScreen(
     inicial: Ajustes,
     voz: Voz,
-    esPrimeraVez: Boolean,
     guardar: (Ajustes) -> Unit,
-    cancelar: (() -> Unit)? = null, // null en la primera vez: no hay a dónde volver
 ) {
     var borrador by remember { mutableStateOf(inicial) }
-    val totalPreguntas = if (esPrimeraVez) PREGUNTAS_GUIA else PREGUNTAS_GUIA + 1
+    val preguntas = PREGUNTAS_GUIA
+    val totalPreguntas = preguntas.size
     // Página 0 = bienvenida (solo la primera vez); 1..totalPreguntas = preguntas
-    var pagina by remember { mutableIntStateOf(if (esPrimeraVez) 0 else 1) }
+    var pagina by remember { mutableIntStateOf(0) }
 
     // El tema de la guía usa el borrador, así se ve el efecto de cada respuesta al instante
     SendaTheme(ajustes = borrador) {
@@ -79,7 +87,6 @@ fun GuiaScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.weight(1f),
                             )
-                            if (cancelar != null) BotonBorde("Cancelar", cancelar)
                         }
                     }
 
@@ -88,14 +95,15 @@ fun GuiaScreen(
                         Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        when (pagina) {
-                            0 -> Bienvenida()
-                            1 -> PreguntaLetra(borrador.tamanoLetra) { borrador = borrador.copy(tamanoLetra = it) }
-                            2 -> PreguntaContraste(borrador.altoContraste) { borrador = borrador.copy(altoContraste = it) }
-                            3 -> PreguntaDibujos(borrador.dibujosGrandes) { borrador = borrador.copy(dibujosGrandes = it) }
-                            4 -> PreguntaVoz(borrador.leerEnVozAlta, voz) { borrador = borrador.copy(leerEnVozAlta = it) }
-                            5 -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
-                            else -> PreguntaApoyo(borrador.aperturaApoyo) { borrador = borrador.copy(aperturaApoyo = it) }
+                        if (pagina == 0) {
+                            Bienvenida(totalPreguntas)
+                        } else when (preguntas[pagina - 1]) {
+                            Pregunta.LETRA -> PreguntaLetra(borrador.tamanoLetra) { borrador = borrador.copy(tamanoLetra = it) }
+                            Pregunta.CONTRASTE -> PreguntaContraste(borrador.altoContraste) { borrador = borrador.copy(altoContraste = it) }
+                            Pregunta.COLORES -> PreguntaColores(borrador.tema) { borrador = borrador.copy(tema = it) }
+                            Pregunta.DIBUJOS -> PreguntaDibujos(borrador.dibujosGrandes) { borrador = borrador.copy(dibujosGrandes = it) }
+                            Pregunta.VOZ -> PreguntaVoz(borrador.leerEnVozAlta, voz) { borrador = borrador.copy(leerEnVozAlta = it) }
+                            Pregunta.CONTACTO -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
                         }
                     }
 
@@ -124,12 +132,12 @@ fun GuiaScreen(
 }
 
 @Composable
-private fun Bienvenida() {
+private fun Bienvenida(totalPreguntas: Int) {
     Spacer(Modifier.size(24.dp))
     VisualPaso(Paso("", Icono.ANDEN), tamano = 120.dp, modifier = Modifier.fillMaxWidth())
     Text("Hola. Soy Senda.", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
     Text(
-        "Te ayudo a moverte en Metro paso a paso. Antes vamos a preparar la app para ti con 5 preguntas.",
+        "Te ayudo a moverte en Metro paso a paso. Antes vamos a preparar la app para ti con $totalPreguntas preguntas.",
         style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
     )
     Text(
@@ -213,17 +221,26 @@ private fun PreguntaContacto(actual: Contacto, cambiar: (Contacto) -> Unit) {
     Text("Pon el prefijo +34 para que funcione WhatsApp.", color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
-/** Solo en Ajustes: cómo se abre el botón «Apoyo» del inicio. Es una opción para la persona de apoyo. */
+
+/**
+ * ¿Qué colores te gustan más? Cada opción lleva una muestra de su tema (el fondo de los dibujos
+ * y el color de los botones). Al tocarla, toda la pantalla cambia para verlo al momento.
+ */
 @Composable
-private fun PreguntaApoyo(actual: AperturaApoyo, elegir: (AperturaApoyo) -> Unit) {
-    Text("Botón «Apoyo»: ¿cómo se abre?", style = MaterialTheme.typography.headlineSmall)
-    Text(
-        "Si hay que mantenerlo pulsado, es más difícil entrar sin querer en las opciones de apoyo.",
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    AperturaApoyo.entries.forEach { a ->
-        BotonOpcion(elegido = actual == a, onClick = { elegir(a) }, modifier = Modifier.fillMaxWidth()) {
-            Text(a.etiqueta, style = MaterialTheme.typography.labelLarge)
+private fun PreguntaColores(actual: TemaColor, elegir: (TemaColor) -> Unit) {
+    Text("¿Qué colores te gustan más?", style = MaterialTheme.typography.headlineSmall)
+    TemaColor.entries.forEach { t ->
+        BotonOpcion(elegido = actual == t, onClick = { elegir(t) }, modifier = Modifier.fillMaxWidth()) {
+            // Muestra: un círculo pastel con el color de los botones dentro
+            Box(
+                Modifier.size(40.dp).clip(CircleShape).background(fondoIcono(t, oscuro = false)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(Modifier.size(20.dp).clip(CircleShape).background(esquema(t, oscuro = false).primary))
+            }
+            Spacer(Modifier.size(12.dp))
+            Text(t.etiqueta, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
         }
     }
 }
+
