@@ -46,7 +46,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** Mensaje que se enseña (y se puede leer en voz alta) si se da un toque corto a un BotonMantener. */
-const val AVISO_MANTENER = "Para abrir, mantén el dedo encima 2 segundos."
+fun avisoMantener(segundos: Int) =
+    "Para abrir, mantén el dedo encima $segundos ${if (segundos == 1) "segundo" else "segundos"}."
 
 /**
  * Botón con dibujo y palabra (mínimo 56 dp de alto). Se usa para «Ayuda» e «Inicio»:
@@ -67,7 +68,8 @@ fun BotonIcono(texto: String, icono: ImageVector, onClick: () -> Unit, modifier:
 }
 
 /**
- * Botón que solo se abre MANTENIENDO el dedo encima (unos 2 segundos).
+ * Botón que solo se abre MANTENIENDO el dedo encima [segundos] segundos (se elige en Ajustes).
+ * Con 0 segundos funciona como un botón normal: se abre con un toque.
  * Sirve para las opciones de la persona de apoyo, para que no se abran sin querer.
  *
  * - Mientras se mantiene, el fondo se va llenando de izquierda a derecha.
@@ -83,8 +85,9 @@ fun BotonMantener(
     alCompletar: () -> Unit,
     alTocar: () -> Unit,
     modifier: Modifier = Modifier,
-    duracionMs: Int = 2000,
+    segundos: Int = 2,
 ) {
+    val duracionMs = segundos * 1000
     val progreso = remember { Animatable(0f) }
     val ambito = rememberCoroutineScope()
     val vibracion = LocalHapticFeedback.current
@@ -104,13 +107,23 @@ fun BotonMantener(
             .border(2.dp, MaterialTheme.colorScheme.outline, forma)
             .semantics {
                 role = Role.Button
-                contentDescription = "$texto. Mantén pulsado para abrir."
-                onLongClick(label = "Abrir") { completar(); true }
-                onClick { tocar(); true }
+                if (segundos == 0) {
+                    contentDescription = texto
+                    onClick { completar(); true }
+                } else {
+                    contentDescription = "$texto. Mantén pulsado para abrir."
+                    onLongClick(label = "Abrir") { completar(); true }
+                    onClick { tocar(); true }
+                }
             }
-            .pointerInput(duracionMs) {
+            .pointerInput(segundos) {
                 awaitEachGesture {
                     awaitFirstDown()
+                    // Sin tiempo de espera: se abre con un toque normal (al levantar el dedo)
+                    if (segundos == 0) {
+                        if (waitForUpOrCancellation() != null) completar()
+                        return@awaitEachGesture
+                    }
                     // Al poner el dedo empieza a llenarse; al llenarse del todo, se abre
                     val llenado: Job = ambito.launch {
                         progreso.animateTo(1f, tween(duracionMs, easing = LinearEasing))

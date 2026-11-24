@@ -63,7 +63,7 @@ fun InicioScreen(
     LaunchedEffect(toquesApoyo) {
         if (toquesApoyo == 0) return@LaunchedEffect
         verAviso = toquesApoyo
-        if (ajustes.leerEnVozAlta) voz.decir(AVISO_MANTENER)
+        if (ajustes.leerEnVozAlta) voz.decir(avisoMantener(ajustes.aperturaApoyo.segundos))
         delay(4000)
         verAviso = 0
     }
@@ -73,11 +73,16 @@ fun InicioScreen(
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             BotonIcono("Ayuda", Icons.AutoMirrored.Filled.Help, abrirAyuda)
             Spacer(Modifier.weight(1f))
-            BotonMantener("Apoyo", Icons.Filled.Lock, alCompletar = abrirApoyo, alTocar = { toquesApoyo++ })
+            // El tiempo que hay que mantenerlo se elige en Ajustes (0 = un toque normal)
+            BotonMantener(
+                "Apoyo", Icons.Filled.Lock,
+                alCompletar = abrirApoyo, alTocar = { toquesApoyo++ },
+                segundos = ajustes.aperturaApoyo.segundos,
+            )
         }
         if (verAviso != 0) {
             Text(
-                AVISO_MANTENER,
+                avisoMantener(ajustes.aperturaApoyo.segundos),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))

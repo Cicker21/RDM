@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import camejoreig.senda.Voz
 import camejoreig.senda.datos.Ajustes
+import camejoreig.senda.datos.AperturaApoyo
 import camejoreig.senda.datos.Contacto
 import camejoreig.senda.datos.Icono
 import camejoreig.senda.datos.Paso
@@ -46,9 +47,12 @@ import camejoreig.senda.ui.theme.SendaTheme
  * Una pregunta por pantalla, con respuestas en botones grandes. Todas las preguntas
  * tienen una respuesta por defecto, así que el formulario siempre se puede completar.
  * Los cambios se ven al momento (letra, contraste) para que la persona elija viéndolo.
+ *
+ * En Ajustes (no la primera vez) hay una pregunta más, para la persona de apoyo:
+ * cómo se abre el botón «Apoyo» del inicio.
  */
 
-private const val TOTAL_PREGUNTAS = 5
+private const val PREGUNTAS_GUIA = 5
 
 @Composable
 fun GuiaScreen(
@@ -59,7 +63,8 @@ fun GuiaScreen(
     cancelar: (() -> Unit)? = null, // null en la primera vez: no hay a dónde volver
 ) {
     var borrador by remember { mutableStateOf(inicial) }
-    // Página 0 = bienvenida (solo la primera vez); 1..TOTAL_PREGUNTAS = preguntas
+    val totalPreguntas = if (esPrimeraVez) PREGUNTAS_GUIA else PREGUNTAS_GUIA + 1
+    // Página 0 = bienvenida (solo la primera vez); 1..totalPreguntas = preguntas
     var pagina by remember { mutableIntStateOf(if (esPrimeraVez) 0 else 1) }
 
     // El tema de la guía usa el borrador, así se ve el efecto de cada respuesta al instante
@@ -70,7 +75,7 @@ fun GuiaScreen(
                     if (pagina > 0) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "Pregunta $pagina de $TOTAL_PREGUNTAS",
+                                "Pregunta $pagina de $totalPreguntas",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.weight(1f),
                             )
@@ -89,12 +94,13 @@ fun GuiaScreen(
                             2 -> PreguntaContraste(borrador.altoContraste) { borrador = borrador.copy(altoContraste = it) }
                             3 -> PreguntaDibujos(borrador.dibujosGrandes) { borrador = borrador.copy(dibujosGrandes = it) }
                             4 -> PreguntaVoz(borrador.leerEnVozAlta, voz) { borrador = borrador.copy(leerEnVozAlta = it) }
-                            else -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
+                            5 -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
+                            else -> PreguntaApoyo(borrador.aperturaApoyo) { borrador = borrador.copy(aperturaApoyo = it) }
                         }
                     }
 
                     // Botones para moverse por la guía
-                    val ultima = pagina == TOTAL_PREGUNTAS
+                    val ultima = pagina == totalPreguntas
                     BotonGrande(
                         texto = when {
                             pagina == 0 -> "Empezar"
@@ -205,4 +211,19 @@ private fun PreguntaContacto(actual: Contacto, cambiar: (Contacto) -> Unit) {
         modifier = Modifier.fillMaxWidth(),
     )
     Text("Pon el prefijo +34 para que funcione WhatsApp.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+/** Solo en Ajustes: cómo se abre el botón «Apoyo» del inicio. Es una opción para la persona de apoyo. */
+@Composable
+private fun PreguntaApoyo(actual: AperturaApoyo, elegir: (AperturaApoyo) -> Unit) {
+    Text("Botón «Apoyo»: ¿cómo se abre?", style = MaterialTheme.typography.headlineSmall)
+    Text(
+        "Si hay que mantenerlo pulsado, es más difícil entrar sin querer en las opciones de apoyo.",
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    AperturaApoyo.entries.forEach { a ->
+        BotonOpcion(elegido = actual == a, onClick = { elegir(a) }, modifier = Modifier.fillMaxWidth()) {
+            Text(a.etiqueta, style = MaterialTheme.typography.labelLarge)
+        }
+    }
 }

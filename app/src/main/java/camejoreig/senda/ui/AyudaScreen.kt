@@ -331,7 +331,7 @@ private fun PracticaCrearRuta(repo: Repositorio, voz: Voz, salir: () -> Unit) {
     var entrada by remember { mutableIntStateOf(0) }
 
     val instruccion = when {
-        entrada == 0 -> "Vamos a crear una ruta corta, de $PASOS_RUTA_PRACTICA pasos. Primero abre «Apoyo»: mantén el dedo encima hasta que se llene."
+        entrada == 0 -> "Vamos a crear una ruta corta, de $PASOS_RUTA_PRACTICA pasos. Primero ${comoAbrirApoyo(ajustes)}"
         entrada == 1 -> "Muy bien. Ahora toca «Crear o cambiar rutas»."
         else -> when (fase) {
         0 -> "Toca «+ Nueva ruta»."
@@ -346,7 +346,7 @@ private fun PracticaCrearRuta(repo: Repositorio, voz: Voz, salir: () -> Unit) {
 
     MarcoPractica("Crear una ruta", instruccion, voz, ajustes, salir) {
         if (entrada < 2) {
-            EntradaApoyo(entrada, "Crear o cambiar rutas", Icons.Filled.Edit, avanzar = { entrada++ })
+            EntradaApoyo(entrada, ajustes.aperturaApoyo.segundos, "Crear o cambiar rutas", Icons.Filled.Edit, avanzar = { entrada++ })
             return@MarcoPractica
         }
         // Resumen de lo que ya se ha hecho (a partir de la fase 2)
@@ -430,7 +430,7 @@ private fun PracticaAjustes(repo: Repositorio, voz: Voz, salir: () -> Unit) {
     var entrada by remember { mutableIntStateOf(0) }
 
     val instruccion = when {
-        entrada == 0 -> "Los ajustes están en «Apoyo». Mantén el dedo encima hasta que se llene."
+        entrada == 0 -> "Los ajustes están en «Apoyo». ${comoAbrirApoyo(guardados)}"
         entrada == 1 -> "Muy bien. Ahora toca «Ajustes»."
         fase == 0 -> "Toca el tamaño de letra que lees mejor."
         fase == 1 -> "Mira cómo ha cambiado. Ahora toca los colores que ves mejor."
@@ -442,7 +442,7 @@ private fun PracticaAjustes(repo: Repositorio, voz: Voz, salir: () -> Unit) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             MarcoPractica("Letra y colores", instruccion, voz, borrador, salir) {
                 if (entrada < 2) {
-                    EntradaApoyo(entrada, "Ajustes", Icons.Filled.Settings, avanzar = { entrada++ })
+                    EntradaApoyo(entrada, guardados.aperturaApoyo.segundos, "Ajustes", Icons.Filled.Settings, avanzar = { entrada++ })
                     return@MarcoPractica
                 }
                 when (fase) {
@@ -495,11 +495,12 @@ private fun PracticaAjustes(repo: Repositorio, voz: Voz, salir: () -> Unit) {
 
 /**
  * Enseña a llegar a una opción de la persona de apoyo, igual que en el inicio:
- * [paso] 0 = mantener pulsado «Apoyo» (con el mismo relleno que el botón de verdad),
+ * [paso] 0 = abrir «Apoyo» igual que en el inicio: tocarlo o mantenerlo [segundos] segundos
+ *           (con el mismo relleno que el botón de verdad), según lo elegido en Ajustes,
  * [paso] 1 = tocar la opción [opcion], dibujada como en la pantalla Apoyo.
  */
 @Composable
-private fun EntradaApoyo(paso: Int, opcion: String, icono: ImageVector, avanzar: () -> Unit) {
+private fun EntradaApoyo(paso: Int, segundos: Int, opcion: String, icono: ImageVector, avanzar: () -> Unit) {
     var aviso by remember { mutableStateOf(false) }
     if (paso == 0) {
         BotonMantener(
@@ -507,6 +508,7 @@ private fun EntradaApoyo(paso: Int, opcion: String, icono: ImageVector, avanzar:
             alCompletar = { aviso = false; avanzar() },
             alTocar = { aviso = true },
             modifier = Modifier.resaltado(),
+            segundos = segundos,
         )
         if (aviso) {
             Text(
@@ -528,5 +530,15 @@ private fun EntradaApoyo(paso: Int, opcion: String, icono: ImageVector, avanzar:
                 Text(opcion, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             }
         }
+    }
+}
+
+/** Instrucción para abrir «Apoyo», según cómo esté configurado en Ajustes. */
+private fun comoAbrirApoyo(ajustes: Ajustes): String {
+    val segundos = ajustes.aperturaApoyo.segundos
+    return when (segundos) {
+        0 -> "Toca «Apoyo»."
+        1 -> "Abre «Apoyo»: mantén el dedo encima 1 segundo, hasta que se llene."
+        else -> "Abre «Apoyo»: mantén el dedo encima $segundos segundos, hasta que se llene."
     }
 }
