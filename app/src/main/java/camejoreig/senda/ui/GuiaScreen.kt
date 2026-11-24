@@ -1,5 +1,8 @@
 package camejoreig.senda.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,9 +38,13 @@ import camejoreig.senda.datos.Ajustes
 import camejoreig.senda.datos.AperturaApoyo
 import camejoreig.senda.datos.Contacto
 import camejoreig.senda.datos.Icono
+import camejoreig.senda.datos.ModoColor
 import camejoreig.senda.datos.Paso
 import camejoreig.senda.datos.TamanoLetra
+import camejoreig.senda.datos.TemaColor
 import camejoreig.senda.ui.theme.SendaTheme
+import camejoreig.senda.ui.theme.esquema
+import camejoreig.senda.ui.theme.fondoIcono
 
 /*
  * GuiaScreen: formulario sencillo que adapta Senda a la persona.
@@ -48,11 +55,20 @@ import camejoreig.senda.ui.theme.SendaTheme
  * tienen una respuesta por defecto, así que el formulario siempre se puede completar.
  * Los cambios se ven al momento (letra, contraste) para que la persona elija viéndolo.
  *
- * En Ajustes (no la primera vez) hay una pregunta más, para la persona de apoyo:
- * cómo se abre el botón «Apoyo» del inicio.
+ * En Ajustes (no la primera vez) hay dos preguntas más, pensadas para la persona de apoyo:
+ * claro u oscuro, y cómo se abre el botón «Apoyo» del inicio.
  */
 
-private const val PREGUNTAS_GUIA = 5
+/** Todas las preguntas, en el orden en que salen. */
+private enum class Pregunta { LETRA, CONTRASTE, COLORES, DIBUJOS, VOZ, CONTACTO, MODO, APOYO }
+
+/** Preguntas de la guía de la primera vez (para la persona). */
+private val PREGUNTAS_GUIA = listOf(
+    Pregunta.LETRA, Pregunta.CONTRASTE, Pregunta.COLORES, Pregunta.DIBUJOS, Pregunta.VOZ, Pregunta.CONTACTO,
+)
+
+/** En Ajustes salen las mismas y, al final, las de la persona de apoyo. */
+private val PREGUNTAS_AJUSTES = PREGUNTAS_GUIA + listOf(Pregunta.MODO, Pregunta.APOYO)
 
 @Composable
 fun GuiaScreen(
@@ -63,7 +79,8 @@ fun GuiaScreen(
     cancelar: (() -> Unit)? = null, // null en la primera vez: no hay a dónde volver
 ) {
     var borrador by remember { mutableStateOf(inicial) }
-    val totalPreguntas = if (esPrimeraVez) PREGUNTAS_GUIA else PREGUNTAS_GUIA + 1
+    val preguntas = if (esPrimeraVez) PREGUNTAS_GUIA else PREGUNTAS_AJUSTES
+    val totalPreguntas = preguntas.size
     // Página 0 = bienvenida (solo la primera vez); 1..totalPreguntas = preguntas
     var pagina by remember { mutableIntStateOf(if (esPrimeraVez) 0 else 1) }
 
@@ -88,14 +105,17 @@ fun GuiaScreen(
                         Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        when (pagina) {
-                            0 -> Bienvenida()
-                            1 -> PreguntaLetra(borrador.tamanoLetra) { borrador = borrador.copy(tamanoLetra = it) }
-                            2 -> PreguntaContraste(borrador.altoContraste) { borrador = borrador.copy(altoContraste = it) }
-                            3 -> PreguntaDibujos(borrador.dibujosGrandes) { borrador = borrador.copy(dibujosGrandes = it) }
-                            4 -> PreguntaVoz(borrador.leerEnVozAlta, voz) { borrador = borrador.copy(leerEnVozAlta = it) }
-                            5 -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
-                            else -> PreguntaApoyo(borrador.aperturaApoyo) { borrador = borrador.copy(aperturaApoyo = it) }
+                        if (pagina == 0) {
+                            Bienvenida(totalPreguntas)
+                        } else when (preguntas[pagina - 1]) {
+                            Pregunta.LETRA -> PreguntaLetra(borrador.tamanoLetra) { borrador = borrador.copy(tamanoLetra = it) }
+                            Pregunta.CONTRASTE -> PreguntaContraste(borrador.altoContraste) { borrador = borrador.copy(altoContraste = it) }
+                            Pregunta.COLORES -> PreguntaColores(borrador.tema, borrador.altoContraste) { borrador = borrador.copy(tema = it) }
+                            Pregunta.DIBUJOS -> PreguntaDibujos(borrador.dibujosGrandes) { borrador = borrador.copy(dibujosGrandes = it) }
+                            Pregunta.VOZ -> PreguntaVoz(borrador.leerEnVozAlta, voz) { borrador = borrador.copy(leerEnVozAlta = it) }
+                            Pregunta.CONTACTO -> PreguntaContacto(borrador.contacto) { borrador = borrador.copy(contacto = it) }
+                            Pregunta.MODO -> PreguntaModo(borrador.modo) { borrador = borrador.copy(modo = it) }
+                            Pregunta.APOYO -> PreguntaApoyo(borrador.aperturaApoyo) { borrador = borrador.copy(aperturaApoyo = it) }
                         }
                     }
 
@@ -124,12 +144,12 @@ fun GuiaScreen(
 }
 
 @Composable
-private fun Bienvenida() {
+private fun Bienvenida(totalPreguntas: Int) {
     Spacer(Modifier.size(24.dp))
     VisualPaso(Paso("", Icono.ANDEN), tamano = 120.dp, modifier = Modifier.fillMaxWidth())
     Text("Hola. Soy Senda.", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
     Text(
-        "Te ayudo a moverte en Metro paso a paso. Antes vamos a preparar la app para ti con 5 preguntas.",
+        "Te ayudo a moverte en Metro paso a paso. Antes vamos a preparar la app para ti con $totalPreguntas preguntas.",
         style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
     )
     Text(
@@ -224,6 +244,49 @@ private fun PreguntaApoyo(actual: AperturaApoyo, elegir: (AperturaApoyo) -> Unit
     AperturaApoyo.entries.forEach { a ->
         BotonOpcion(elegido = actual == a, onClick = { elegir(a) }, modifier = Modifier.fillMaxWidth()) {
             Text(a.etiqueta, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+/**
+ * ¿Qué colores te gustan más? Cada opción lleva una muestra de su tema (el fondo de los dibujos
+ * y el color de los botones). Al tocarla, toda la pantalla cambia para verlo al momento.
+ */
+@Composable
+private fun PreguntaColores(actual: TemaColor, altoContraste: Boolean, elegir: (TemaColor) -> Unit) {
+    Text("¿Qué colores te gustan más?", style = MaterialTheme.typography.headlineSmall)
+    TemaColor.entries.forEach { t ->
+        BotonOpcion(elegido = actual == t, onClick = { elegir(t) }, modifier = Modifier.fillMaxWidth()) {
+            // Muestra: un círculo pastel con el color de los botones dentro
+            Box(
+                Modifier.size(40.dp).clip(CircleShape).background(fondoIcono(t, oscuro = false)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(Modifier.size(20.dp).clip(CircleShape).background(esquema(t, oscuro = false).primary))
+            }
+            Spacer(Modifier.size(12.dp))
+            Text(t.etiqueta, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+        }
+    }
+    if (altoContraste) {
+        Text(
+            "Tienes elegido «Más contraste»: mientras esté puesto, la app se ve en blanco y negro.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** Solo en Ajustes: claro, oscuro o lo que tenga puesto el móvil. */
+@Composable
+private fun PreguntaModo(actual: ModoColor, elegir: (ModoColor) -> Unit) {
+    Text("¿Pantalla clara u oscura?", style = MaterialTheme.typography.headlineSmall)
+    Text(
+        "«Según el móvil» cambia cuando el teléfono cambia a modo oscuro. Si el teléfono no tiene modo oscuro, se ve clara.",
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    ModoColor.entries.forEach { m ->
+        BotonOpcion(elegido = actual == m, onClick = { elegir(m) }, modifier = Modifier.fillMaxWidth()) {
+            Text(m.etiqueta, style = MaterialTheme.typography.labelLarge)
         }
     }
 }
