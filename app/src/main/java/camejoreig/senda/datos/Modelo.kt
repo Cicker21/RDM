@@ -97,5 +97,5 @@ data class Ajustes(
     val tema: TemaColor = TemaColor.MELOCOTON,
     val modo: ModoColor = ModoColor.SEGUN_MOVIL, // solo se cambia en Ajustes
     val celebrar: Boolean = true, // confeti al llegar al destino
-    val duracionCelebracion: DuracionCelebracion = DuracionCelebracion.LARGA,
+    val duracionCelebracion: DuracionCelebracion = DuracionCelebracion.CORTA,
 )

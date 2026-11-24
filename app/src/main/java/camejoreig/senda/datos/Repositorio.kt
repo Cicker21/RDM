@@ -150,7 +150,7 @@ class Repositorio(private val ctx: Context) {
             modo = runCatching { ModoColor.valueOf(o.getString("modo")) }.getOrDefault(ModoColor.SEGUN_MOVIL),
             celebrar = o.optBoolean("celebrar", true), // si no está guardado (versión antigua), sí
             duracionCelebracion = runCatching { DuracionCelebracion.valueOf(o.getString("duracionCelebracion")) }
-                .getOrDefault(DuracionCelebracion.LARGA),
+                .getOrDefault(DuracionCelebracion.CORTA),
         )
     }
 

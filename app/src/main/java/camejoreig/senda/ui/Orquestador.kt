@@ -231,7 +231,7 @@ fun PersonalScreen(repo: Repositorio, voz: Voz, volver: () -> Unit) {
 // Llegada
 // ---------------------------------------------------------------
 @Composable
-fun LlegadaScreen(inicio: () -> Unit, celebrar: Boolean = true, duracionMs: Int = 5000) {
+fun LlegadaScreen(inicio: () -> Unit, celebrar: Boolean = true, duracionMs: Int = 2000) {
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Spacer(Modifier.weight(1f))

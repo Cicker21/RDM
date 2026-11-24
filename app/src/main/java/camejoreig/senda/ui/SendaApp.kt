@@ -105,7 +105,7 @@ fun SendaApp(repo: Repositorio, voz: Voz) {
                 Pantalla.Llegada -> LlegadaScreen(
                     inicio = { pantalla = Pantalla.Inicio },
                     celebrar = repo.ajustes?.celebrar ?: true,
-                    duracionMs = (repo.ajustes?.duracionCelebracion ?: DuracionCelebracion.LARGA).milisegundos,
+                    duracionMs = (repo.ajustes?.duracionCelebracion ?: DuracionCelebracion.CORTA).milisegundos,
                 )
                 Pantalla.Creador -> CreadorScreen(
                     repo = repo,
